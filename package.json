@@ -18,6 +18,8 @@
   "homepage": "https://github.com/AlessioBonadonna/ocni-node-be#readme",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1",

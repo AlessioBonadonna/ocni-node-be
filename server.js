@@ -1,23 +1,26 @@
 const express = require("express");
 const db = require("./db");
 const bcrypt = require("bcrypt");
+const cors = require('cors')
+const bodyParser = require('body-parser')
+
+
 const app = express();
+app.use(cors())
+app.use(bodyParser.json()) 
+// app.use(bodyParser.urlencoded({ extended: true}))
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
-
-app.listen(8000, () => {
-  console.log("Server is running");
-});
-
+app.get("/test", cors(), (req, res) => {
+  res.json({ msg: "CORS enabled!" })
+})
 /* TO DO
 Registrazione
 Login */
 
-app.post("/register", async (req, res) => {
+app.post("/register", cors(), async (req, res) => {
   try {
     const { email, name, password } = req.body;
+    console.log(req.body.email,"sono lemail");
     const hashPassword = await bcrypt.hash(password, 10);
     const result = await db.query(
       "INSERT INTO users (email, password, name) VALUES (?, ?, ?)",
@@ -37,9 +40,15 @@ app.post("/register", async (req, res) => {
         email: user.email,
       },
     });
-  } catch (error) {
-    console.error("Error in /register", error);
-    res.status(500).json({ error: "Internal server error" });
+  }catch (err) {  
+    if(err.errno === 1062) {
+      res.status(400).json({error: "Username already exists"})
+    } else {   
+      console.error(err)  
+      res.status(500).json({
+        error: "An unexpected error occurred. Please try again later."
+      })
+    }  
   }
 });
 
