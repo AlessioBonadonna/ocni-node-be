@@ -1,8 +1,9 @@
 const express = require("express");
-const db = require("./db");
+const db = require("./db").promise();
 const bcrypt = require("bcrypt");
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const jwt= require('jsonwebtoken');
 
 
 const app = express();
@@ -20,7 +21,7 @@ Login */
 app.post("/register", cors(), async (req, res) => {
   try {
     const { email, name, password } = req.body;
-    console.log(req.body.email,"sono lemail");
+
     const hashPassword = await bcrypt.hash(password, 10);
     const result = await db.query(
       "INSERT INTO users (email, password, name) VALUES (?, ?, ?)",
