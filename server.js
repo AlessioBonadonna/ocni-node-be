@@ -9,7 +9,7 @@ const jwt= require('jsonwebtoken');
 const app = express();
 app.use(cors())
 app.use(bodyParser.json()) 
-// app.use(bodyParser.urlencoded({ extended: true}))
+ app.use(bodyParser.urlencoded({ extended: true}))
 
 app.get("/test", cors(), (req, res) => {
   res.json({ msg: "CORS enabled!" })
@@ -53,6 +53,22 @@ app.post("/register", cors(), async (req, res) => {
   }
 });
 
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body
+    // Verifica l'email e la password
+    const user = await validateUser(email, password) 
+    if(!user) {
+      return res.status(401).send('Credenziali non valide')
+    }
+    // Genera il token
+    const token = jwt.sign({ id: user.id }, 'your_secret_key')
+    res.json({ user, token })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send('Errore sul server')      
+  }
+})
 app.listen(8000, () => {
   console.log("Server listening on port 8000");
 });
