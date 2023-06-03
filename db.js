@@ -1,27 +1,19 @@
 const mysql = require("mysql2");
 
-
-
 const db = mysql.createConnection({
-    host: "localhost",
-    port: 8889,
-    user: "root",
-    password: "root",
-    database: "ocni"
+  host: "localhost",
+  port: 8889,
+  user: "root",
+  password: "root",
+  database: "ocni"
 });
-async function validateUser(email, password) {
-    // Recupera l'utente dal database in base all'email
-    const user = await getUserByEmail(email)
-    
-    // Verifica la password
-    const isValid = bcrypt.compare(password, user.password)
-    if (isValid) {
-      return user
-    }  
-    return null
+
+db.connect((err) => {
+  if (err) {
+    console.error("Errore durante la connessione al database:", err);
+    return;
   }
-db.connect();
-// console.log(db);
-console.log('DB CONNECTED');
+  console.log("Connessione al database stabilita correttamente");
+});
 
 module.exports = db;
