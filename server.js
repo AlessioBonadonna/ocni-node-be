@@ -52,23 +52,42 @@ app.post("/register", cors(), async (req, res) => {
     }  
   }
 });
-
-app.post('/login', async (req, res) => {
+app.post("/login", cors(), async (req, res) => {
   try {
-    const { email, password } = req.body
-    // Verifica l'email e la password
-    const user = await validateUser(email, password) 
-    if(!user) {
-      return res.status(401).send('Credenziali non valide')
+    const { email, password } = req.body;
+    const result = await db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+    const user = result[0][0];
+    if (!user) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
     }
-    // Genera il token
-    const token = jwt.sign({ id: user.id }, 'your_secret_key')
-    res.json({ user, token })
+    console.log('sono la password del utente ',user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+    const token = jwt.sign({ id: user.id }, "your_secret_key");
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (err) {
-    console.error(err)
-    res.status(500).send('Errore sul server')      
+    console.error(err);
+    res.status(500).json({
+      error: "An unexpected error occurred. Please try again later."
+    });
   }
-})
+});
+
+
 app.listen(8000, () => {
   console.log("Server listening on port 8000");
 });
